@@ -9,7 +9,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "https://doc-search-frontend.vercel.app"],
+    allow_origins=["http://localhost:5173", "https://doc-search-peach-nine.vercel.app"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
