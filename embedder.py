@@ -1,7 +1,7 @@
-from sentence_transformers import SentenceTransformer
+from fastembed import TextEmbedding
 
-model = SentenceTransformer('all-MiniLM-L6-v2')
+model = TextEmbedding(model_name="BAAI/bge-small-en-v1.5")
 
 def embed_chunks(chunks: list[str]) -> list[list[float]]:
-    embeddings = model.encode(chunks)
-    return embeddings.tolist()
+    embeddings = list(model.embed(chunks))
+    return [e.tolist() for e in embeddings]
