@@ -13,3 +13,13 @@ def store_chunks(filename: str, chunks: list[str], embeddings: list[list[float]]
         documents=chunks,
         metadatas=metadatas
     )
+
+def list_documents():
+    data = collection.get()
+    filenames = set(m["filename"] for m in data["metadatas"])
+    return sorted(filenames)
+
+def clear_all():
+    data = collection.get()
+    if data["ids"]:
+        collection.delete(ids=data["ids"])

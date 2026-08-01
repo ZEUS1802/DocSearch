@@ -1,10 +1,9 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from parser import extract_text
 from chunker import chunk_text
 from embedder import embed_chunks
-from store import store_chunks
-from store import store_chunks, collection
-from fastapi.middleware.cors import CORSMiddleware
+from store import store_chunks, collection, list_documents, clear_all
 
 app = FastAPI()
 
@@ -44,14 +43,24 @@ async def upload_document(file: UploadFile = File(...)):
         "stored_in_db": True
     }
 
+@app.get("/documents")
+def get_documents():
+    return {"documents": list_documents()}
+
+@app.delete("/documents")
+def clear_documents():
+    clear_all()
+    return {"cleared": True}
+
 @app.get("/search")
-def search_documents(query: str, top_k: int = 5):
+def search_documents(query: str, top_k: int = 5, filename: str = None):
     query_embedding = embed_chunks([query])[0]
 
-    results = collection.query(
-        query_embeddings=[query_embedding],
-        n_results=top_k
-    )
+    query_kwargs = {"query_embeddings": [query_embedding], "n_results": top_k}
+    if filename:
+        query_kwargs["where"] = {"filename": filename}
+
+    results = collection.query(**query_kwargs)
 
     matches = []
     for i in range(len(results["documents"][0])):
@@ -63,4 +72,3 @@ def search_documents(query: str, top_k: int = 5):
         })
 
     return {"query": query, "results": matches}
-

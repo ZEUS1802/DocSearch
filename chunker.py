@@ -1,4 +1,4 @@
-def chunk_text(text: str, chunk_size: int = 500, overlap: int = 50) -> list[str]:
+def chunk_text(text: str, chunk_size: int = 100, overlap: int = 20) -> list[str]:
     words = text.split()
     chunks = []
     start = 0

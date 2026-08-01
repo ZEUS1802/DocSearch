@@ -32,15 +32,21 @@ function UploadDocument({ onUploadSuccess }) {
 
     return (
         <div>
-            <input
-                type="file"
-                accept=".pdf,.docx"
-                onChange={(e) => setFile(e.target.files[0])}
-            />
-            <button onClick={handleUpload} disabled={!file || uploading}>
-                {uploading ? 'Uploading...' : 'Upload'}
-            </button>
-            {message && <p>{message}</p>}
+            <div className="upload-row">
+                <input
+                    type="file"
+                    accept=".pdf,.docx"
+                    onChange={(e) => setFile(e.target.files[0])}
+                />
+                <button onClick={handleUpload} disabled={!file || uploading}>
+                    {uploading ? 'Uploading...' : 'Upload'}
+                </button>
+            </div>
+            {message && (
+                <p className={`status-message ${message.startsWith('Upload failed') ? 'error' : ''}`}>
+                    {message}
+                </p>
+            )}
         </div>
     );
 }
