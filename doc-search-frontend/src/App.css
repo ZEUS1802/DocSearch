@@ -527,3 +527,15 @@ button:disabled {
   font-size: 0.88rem;
   margin-bottom: 12px;
 }
+
+.version-badge {
+  display: inline-block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--accent);
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-bottom: 14px;
+}

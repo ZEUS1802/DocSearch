@@ -9,6 +9,7 @@ function SearchDocuments() {
     const [results, setResults] = useState([]);
     const [searching, setSearching] = useState(false);
     const [selectedDoc, setSelectedDoc] = useState(null);
+    const [expandedIndex, setExpandedIndex] = useState(null);
 
     const handleSearch = async () => {
         if (!query.trim()) return;
@@ -48,15 +49,28 @@ function SearchDocuments() {
             </div>
 
             <div className="results-list">
-                {results.map((result, index) => (
-                    <div key={index} className="result-card">
-                        <div className="result-meta">
-                            <span className="result-filename">{result.filename} · chunk {result.chunk_index}</span>
-                            <span className="result-tag">DIST {result.distance.toFixed(2)}</span>
+                {results.map((result, index) => {
+                    const isExpanded = expandedIndex === index;
+                    return (
+                        <div key={index} className="result-card">
+                            <div className="result-meta">
+                                <span className="result-filename">{result.filename} · chunk {result.chunk_index}</span>
+                                <span className="result-tag">DIST {result.distance.toFixed(2)}</span>
+                            </div>
+                            <p className="result-text">
+                                {isExpanded ? result.text : result.text.slice(0, 300) + '...'}
+                            </p>
+                            {result.text.length > 300 && (
+                                <button
+                                    className="expand-btn"
+                                    onClick={() => setExpandedIndex(isExpanded ? null : index)}
+                                >
+                                    {isExpanded ? 'Show less' : 'Show more'}
+                                </button>
+                            )}
                         </div>
-                        <p className="result-text">{result.text.slice(0, 300)}...</p>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         </div>
     );

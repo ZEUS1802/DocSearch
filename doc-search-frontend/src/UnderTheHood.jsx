@@ -13,9 +13,10 @@ function UnderTheHood() {
     return (
         <div className="tech-page">
             <div className="tech-header">
+                <span className="version-badge">v1.0</span>
                 <h1 className="tech-title serif">Under the hood</h1>
                 <p className="tech-intro">
-                    A quick look at how this actually works: the pipeline, a real problem it ran into, and what's still rough around the edges.
+                    A quick look at how this actually works: the pipeline, a real problem it ran into, and what's still rough around the edges. This is v1 — working end to end, with a few known limitations below that v2 will address.
                 </p>
             </div>
 
@@ -64,13 +65,13 @@ function UnderTheHood() {
             </section>
 
             <section className="tech-section">
-                <h2 className="tech-section-title">What's still rough</h2>
+                <h2 className="tech-section-title">What's still rough in v1</h2>
                 <ul className="limitations-list">
                     <li>
-                        <strong>Chunk boundaries are word-count based</strong>, not semantic. A single logical entry can occasionally get split across two chunks.
+                        <strong>Fixed-size chunking dilutes topic-dense chunks.</strong> On short, multi-topic reference documents, several unrelated commands can end up sharing one chunk, so a query about one command sometimes gets outranked by a chunk that mentions many topics at once, including the right one.
                     </li>
                     <li>
-                        <strong>Dense reference and citation sections</strong> in academic PDFs can outrank genuinely relevant content, since they are keyword-heavy but low in actual information.
+                        <strong>Embedding distance measures topical similarity, not relevance.</strong> A keyword-dense but generic chunk (like a book's intro, or a references section) can outrank a chunk that specifically answers the query.
                     </li>
                     <li>
                         <strong>The embedding model is English-centric.</strong> Mixed-language documents retrieve less precisely than English-only ones.
@@ -78,14 +79,20 @@ function UnderTheHood() {
                 </ul>
             </section>
 
+            <section className="tech-section">
+                <h2 className="tech-section-title">Planned for v2</h2>
+                <ul className="limitations-list">
+                    <li>
+                        <strong>Cross-encoder reranking</strong> over the top-k candidates, to judge relevance directly instead of relying on embedding distance alone.
+                    </li>
+                    <li>
+                        <strong>Topic-aware chunking</strong> for structured documents, so distinct commands or sections land in separate chunks rather than being blended together.
+                    </li>
+                </ul>
+            </section>
 
-            <a href="https://github.com/ZEUS1802/Throttle-v2"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="repo-link"
-            >
-                View the code on GitHub
-            </a>
+
+
         </div >
     );
 }
