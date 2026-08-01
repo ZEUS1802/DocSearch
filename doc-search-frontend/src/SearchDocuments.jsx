@@ -2,7 +2,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import DocumentFilter from './DocumentFilter';
 
-const API_BASE = 'http://127.0.0.1:8000';
+const API_BASE = 'https://docsearch-2wfu.onrender.com';;
 
 function SearchDocuments() {
     const [query, setQuery] = useState('');
