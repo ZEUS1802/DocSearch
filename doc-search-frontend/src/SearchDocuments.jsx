@@ -2,7 +2,23 @@ import { useState } from 'react';
 import axios from 'axios';
 import DocumentFilter from './DocumentFilter';
 
-const API_BASE = 'https://docsearch-2wfu.onrender.com';;
+const API_BASE = 'https://docsearch-2wfu.onrender.com';
+
+function renderWithHighlight(text, highlight) {
+    if (!highlight || !text.includes(highlight)) {
+        return <span>{text}</span>;
+    }
+    const index = text.indexOf(highlight);
+    const before = text.slice(0, index);
+    const after = text.slice(index + highlight.length);
+    return (
+        <span>
+            {before}
+            <mark className="highlight-mark">{highlight}</mark>
+            {after}
+        </span>
+    );
+}
 
 function SearchDocuments() {
     const [query, setQuery] = useState('');
@@ -51,19 +67,27 @@ function SearchDocuments() {
             <div className="results-list">
                 {results.map((result, index) => {
                     const isExpanded = expandedIndex === index;
+                    const displayText = isExpanded
+                        ? result.text
+                        : result.text.slice(0, 300) + (result.text.length > 300 ? '...' : '');
+
                     return (
                         <div key={index} className="result-card">
                             <div className="result-meta">
                                 <span className="result-filename">{result.filename} · chunk {result.chunk_index}</span>
                                 <span className="result-tag">DIST {result.distance.toFixed(2)}</span>
                             </div>
-                            <p className="result-highlight">{result.highlight}</p>
+                            <p className="result-text">
+                                {renderWithHighlight(displayText, result.highlight)}
+                            </p>
                             {result.text.length > 300 && (
-                                <button className="expand-btn" onClick={() => setExpandedIndex(isExpanded ? null : index)}>
-                                    {isExpanded ? 'Hide full chunk' : 'Show full chunk'}
+                                <button
+                                    className="expand-btn"
+                                    onClick={() => setExpandedIndex(isExpanded ? null : index)}
+                                >
+                                    {isExpanded ? 'Show less' : 'Show more'}
                                 </button>
                             )}
-                            {isExpanded && <p className="result-text">{result.text}</p>}
                         </div>
                     );
                 })}

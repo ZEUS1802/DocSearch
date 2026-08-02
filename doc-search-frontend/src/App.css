@@ -547,3 +547,11 @@ button:disabled {
   line-height: 1.55;
   margin-bottom: 4px;
 }
+
+.highlight-mark {
+  background: var(--accent);
+  color: var(--accent-text);
+  padding: 1px 4px;
+  border-radius: 4px;
+  font-weight: 600;
+}
