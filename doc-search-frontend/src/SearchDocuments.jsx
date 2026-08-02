@@ -57,17 +57,13 @@ function SearchDocuments() {
                                 <span className="result-filename">{result.filename} · chunk {result.chunk_index}</span>
                                 <span className="result-tag">DIST {result.distance.toFixed(2)}</span>
                             </div>
-                            <p className="result-text">
-                                {isExpanded ? result.text : result.text.slice(0, 300) + '...'}
-                            </p>
+                            <p className="result-highlight">{result.highlight}</p>
                             {result.text.length > 300 && (
-                                <button
-                                    className="expand-btn"
-                                    onClick={() => setExpandedIndex(isExpanded ? null : index)}
-                                >
-                                    {isExpanded ? 'Show less' : 'Show more'}
+                                <button className="expand-btn" onClick={() => setExpandedIndex(isExpanded ? null : index)}>
+                                    {isExpanded ? 'Hide full chunk' : 'Show full chunk'}
                                 </button>
                             )}
+                            {isExpanded && <p className="result-text">{result.text}</p>}
                         </div>
                     );
                 })}

@@ -4,6 +4,7 @@ from parser import extract_text
 from chunker import chunk_text
 from embedder import embed_chunks
 from store import store_chunks, collection, list_documents, clear_all
+from highlight import find_best_sentence
 
 app = FastAPI()
 
@@ -64,11 +65,13 @@ def search_documents(query: str, top_k: int = 5, filename: str = None):
 
     matches = []
     for i in range(len(results["documents"][0])):
+        chunk_text = results["documents"][0][i]
         matches.append({
-            "text": results["documents"][0][i],
+            "text": chunk_text,
+            "highlight": find_best_sentence(query_embedding, chunk_text),
             "filename": results["metadatas"][0][i]["filename"],
-            "chunk_index": results["metadatas"][0][i]["chunk_index"],
-            "distance": results["distances"][0][i]
-        })
+        "chunk_index": results["metadatas"][0][i]["chunk_index"],
+        "distance": results["distances"][0][i]
+    })
 
     return {"query": query, "results": matches}
