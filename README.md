@@ -7,6 +7,9 @@ Unlike a standard Ctrl+F or Adobe-style keyword search, this uses semantic embed
 **v1.0** — working end to end, with known limitations documented below.
 
 ---
+**🔗 Live demo:** [doc-search-peach-nine.vercel.app](https://doc-search-peach-nine.vercel.app)
+**API docs:** [docsearch-2wfu.onrender.com/docs](https://docsearch-2wfu.onrender.com/docs)
+---
 
 ## Features
 
@@ -49,10 +52,6 @@ Stripping the boilerplate before chunking measurably improved retrieval:
 - **The embedding model is English-centric.** Mixed-language documents retrieve less precisely than English-only ones.
 
 
-**🔗 Live demo:** [doc-search-peach-nine.vercel.app](https://doc-search-peach-nine.vercel.app)
-**API docs:** [docsearch-2wfu.onrender.com/docs](https://docsearch-2wfu.onrender.com/docs)
-
-A RAG-based search tool that finds content in your documents by **meaning, not just keywords**...
 
 ## Planned for v2
 
