@@ -48,6 +48,12 @@ Stripping the boilerplate before chunking measurably improved retrieval:
 - **Embedding distance measures topical similarity, not relevance.** A keyword-dense but generic chunk (e.g. a document's intro, or a references/citations section) can outrank a chunk that specifically answers the query.
 - **The embedding model is English-centric.** Mixed-language documents retrieve less precisely than English-only ones.
 
+
+**🔗 Live demo:** [doc-search-peach-nine.vercel.app](https://doc-search-peach-nine.vercel.app)
+**API docs:** [docsearch-2wfu.onrender.com/docs](https://docsearch-2wfu.onrender.com/docs)
+
+A RAG-based search tool that finds content in your documents by **meaning, not just keywords**...
+
 ## Planned for v2
 
 - **Cross-encoder reranking** over the top-k candidates, to judge relevance directly instead of relying on embedding distance alone
