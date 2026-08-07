@@ -47,17 +47,17 @@ Stripping the boilerplate before chunking measurably improved retrieval:
 
 ## Known limitations (v1)
 
-- **Fixed-size chunking dilutes topic-dense chunks.** On short, multi-topic reference documents, several unrelated sections can end up sharing one chunk, so a query about one topic can be outranked by a chunk that mentions many topics, including the right one.
-- **Embedding distance measures topical similarity, not relevance.** A keyword-dense but generic chunk (e.g. a document's intro, or a references/citations section) can outrank a chunk that specifically answers the query.
+- **Embedding distance measures topical similarity, not guaranteed relevance.** A keyword-dense but generic chunk can still occasionally outrank a chunk that specifically answers the query.
 - **The embedding model is English-centric.** Mixed-language documents retrieve less precisely than English-only ones.
-
+- **No per-user accounts** Every uploaded document is visible to every search \u2014 there's no concept of "your documents" vs. someone else's yet.
+- **Generated answers are only as grounded as the retrieved context.** If retrieval misses the relevant chunk, the AI Answer mode can only work with what it was given \u2014 it's instructed not to fall back on its own knowledge, but that instruction isn't a hard guarantee.
 
 
 ## Planned for v2
 
-- **Cross-encoder reranking** over the top-k candidates, to judge relevance directly instead of relying on embedding distance alone
-- **Topic-aware chunking** for structured documents, so distinct sections land in separate chunks rather than being blended together
-
+- **Cross-encoder reranking** over the top-k candidates \u2014 deprioritized for now, since a second model adds real memory pressure on free-tier hosting; revisiting once memory headroom allows.
+- **User accounts** \u2014 scope uploaded documents and search results per logged-in user, reusing the JWT auth pattern from an earlier project.
+- **Further chunking refinement** for short, multi-topic reference documents, where several unrelated sections can still land in one chunk.
 ## Running locally
 
 ### Backend
