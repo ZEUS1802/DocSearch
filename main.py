@@ -5,7 +5,14 @@ from chunker import chunk_text
 from embedder import embed_chunks
 from store import store_chunks, collection, list_documents, clear_all
 from highlight import find_best_sentence
+import os
+from dotenv import load_dotenv
+from openai import OpenAI
 
+load_dotenv()
+client = OpenAI(
+    api_key=os.getenv("GROQ_API_KEY"),
+    base_url="https://api.groq.com/openai/v1")
 app = FastAPI()
 
 app.add_middleware(
@@ -70,8 +77,37 @@ def search_documents(query: str, top_k: int = 5, filename: str = None):
             "text": chunk_text,
             "highlight": find_best_sentence(query_embedding, chunk_text),
             "filename": results["metadatas"][0][i]["filename"],
-        "chunk_index": results["metadatas"][0][i]["chunk_index"],
-        "distance": results["distances"][0][i]
+            "chunk_index": results["metadatas"][0][i]["chunk_index"],
+            "distance": results["distances"][0][i]
     })
 
     return {"query": query, "results": matches}
+
+@app.get("/ask")
+def ask_question(query: str, top_k: int = 5, filename: str = None):
+    query_embedding = embed_chunks([query])[0]
+
+    query_kwargs = {"query_embeddings": [query_embedding], "n_results": top_k}
+    if filename:
+        query_kwargs["where"] = {"filename": filename}
+
+    results = collection.query(**query_kwargs)
+    context = "\n\n".join(results["documents"][0])
+
+    response = client.chat.completions.create(
+    model="llama-3.1-8b-instant",
+    max_tokens=500,
+    messages=[
+        {"role": "system", "content": "Answer using only the provided context. If the answer isn't in the context, say so."},
+        {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {query}"}
+    ]
+)
+
+    return {
+        "query": query,
+        "answer": response.choices[0].message.content,
+        "sources": [
+            {"filename": results["metadatas"][0][i]["filename"], "chunk_index": results["metadatas"][0][i]["chunk_index"]}
+            for i in range(len(results["documents"][0]))
+        ]
+    }

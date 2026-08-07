@@ -6,3 +6,5 @@ python-docx
 chromadb
 fastembed
 numpy
+openai
+python-dotenv

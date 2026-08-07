@@ -2,7 +2,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import DocumentFilter from './DocumentFilter';
 
-const API_BASE = 'https://docsearch-2wfu.onrender.com';
+const API_BASE = 'http://127.0.0.1:8000';
 
 function renderWithHighlight(text, highlight) {
     if (!highlight || !text.includes(highlight)) {
@@ -26,20 +26,36 @@ function SearchDocuments() {
     const [searching, setSearching] = useState(false);
     const [selectedDoc, setSelectedDoc] = useState(null);
     const [expandedIndex, setExpandedIndex] = useState(null);
+    const [aiMode, setAiMode] = useState(false);
+    const [aiAnswer, setAiAnswer] = useState(null);
 
     const handleSearch = async () => {
         if (!query.trim()) return;
 
         setSearching(true);
+        setAiAnswer(null);
+        setResults([]);
+
         try {
-            const response = await axios.get(`${API_BASE}/search`, {
-                params: {
-                    query,
-                    top_k: 5,
-                    ...(selectedDoc && { filename: selectedDoc }),
-                },
-            });
-            setResults(response.data.results);
+            if (aiMode) {
+                const response = await axios.get(`${API_BASE}/ask`, {
+                    params: {
+                        query,
+                        top_k: 5,
+                        ...(selectedDoc && { filename: selectedDoc }),
+                    },
+                });
+                setAiAnswer(response.data);
+            } else {
+                const response = await axios.get(`${API_BASE}/search`, {
+                    params: {
+                        query,
+                        top_k: 5,
+                        ...(selectedDoc && { filename: selectedDoc }),
+                    },
+                });
+                setResults(response.data.results);
+            }
         } catch (error) {
             console.error('Search failed:', error);
         } finally {
@@ -51,6 +67,15 @@ function SearchDocuments() {
         <div>
             <DocumentFilter selected={selectedDoc} onChange={setSelectedDoc} />
 
+            <label className="ai-toggle">
+                <input
+                    type="checkbox"
+                    checked={aiMode}
+                    onChange={(e) => setAiMode(e.target.checked)}
+                />
+                Get an AI-generated answer instead of matching passages
+            </label>
+
             <div className="search-row">
                 <input
                     type="text"
@@ -60,9 +85,21 @@ function SearchDocuments() {
                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 />
                 <button onClick={handleSearch} disabled={searching}>
-                    {searching ? 'Searching...' : 'Search'}
+                    {searching ? (aiMode ? 'Thinking...' : 'Searching...') : 'Search'}
                 </button>
             </div>
+
+            {aiAnswer && (
+                <div className="ai-answer-card">
+                    <div className="ai-answer-label">AI Answer</div>
+                    <p className="ai-answer-text">{aiAnswer.answer}</p>
+                    <div className="ai-answer-sources">
+                        Sources: {aiAnswer.sources.map((s, i) => (
+                            <span key={i} className="source-chip">{s.filename} · chunk {s.chunk_index}</span>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             <div className="results-list">
                 {results.map((result, index) => {

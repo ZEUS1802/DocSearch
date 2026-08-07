@@ -2,21 +2,22 @@ function UnderTheHood() {
     const pipelineSteps = [
         { name: 'Extract', desc: 'Pull raw text from uploaded PDF/DOCX files (pypdf, python-docx).' },
         { name: 'Clean', desc: 'Strip repeated boilerplate before it pollutes the embeddings.' },
-        { name: 'Chunk', desc: 'Split text into overlapping word-count windows.' },
-        { name: 'Embed', desc: 'Convert each chunk into a 384-dim vector (sentence-transformers).' },
+        { name: 'Chunk', desc: 'Split on paragraph boundaries, not raw word counts \u2014 avoids cutting sentences mid-thought.' },
+        { name: 'Embed', desc: 'Convert each chunk into a 384-dim vector (fastembed, ONNX runtime, CPU-only).' },
         { name: 'Store', desc: 'Persist embeddings and text in a local vector DB (Chroma).' },
-        { name: 'Retrieve', desc: 'Embed the query, return the closest chunks by cosine distance.' },
+        { name: 'Retrieve', desc: 'Embed the query, return the closest chunks by cosine distance, and highlight the best-matching sentence within each.' },
+        { name: 'Generate', desc: 'Optionally: feed the top-k retrieved chunks to an LLM (Llama 3.1 via Groq) to synthesize a grounded, cited answer instead of raw passages.' },
     ];
 
-    const stack = ['FastAPI', 'sentence-transformers', 'ChromaDB', 'pypdf', 'python-docx', 'React', 'Docker'];
+    const stack = ['FastAPI', 'fastembed (ONNX)', 'ChromaDB', 'Groq (Llama 3.1)', 'pypdf', 'python-docx', 'React', 'Docker'];
 
     return (
         <div className="tech-page">
             <div className="tech-header">
-                <span className="version-badge">v1.0</span>
+                <span className="version-badge">v1.1</span>
                 <h1 className="tech-title serif">Under the hood</h1>
                 <p className="tech-intro">
-                    A quick look at how this actually works: the pipeline, a real problem it ran into, and what's still rough around the edges. This is v1 — working end to end, with a few known limitations below that v2 will address.
+                    A quick look at how this actually works: the pipeline, a real problem it ran into, and what's still rough around the edges.
                 </p>
             </div>
 
@@ -65,16 +66,19 @@ function UnderTheHood() {
             </section>
 
             <section className="tech-section">
-                <h2 className="tech-section-title">What's still rough in v1</h2>
+                <h2 className="tech-section-title">What's still rough</h2>
                 <ul className="limitations-list">
                     <li>
-                        <strong>Fixed-size chunking dilutes topic-dense chunks.</strong> On short, multi-topic reference documents, several unrelated commands can end up sharing one chunk, so a query about one command sometimes gets outranked by a chunk that mentions many topics at once, including the right one.
-                    </li>
-                    <li>
-                        <strong>Embedding distance measures topical similarity, not relevance.</strong> A keyword-dense but generic chunk (like a book's intro, or a references section) can outrank a chunk that specifically answers the query.
+                        <strong>Embedding distance measures topical similarity, not guaranteed relevance.</strong> A keyword-dense but generic chunk can still occasionally outrank a chunk that specifically answers the query.
                     </li>
                     <li>
                         <strong>The embedding model is English-centric.</strong> Mixed-language documents retrieve less precisely than English-only ones.
+                    </li>
+                    <li>
+                        <strong>No per-user accounts.</strong> Every uploaded document is visible to every search \u2014 there's no concept of "your documents" vs. someone else's yet.
+                    </li>
+                    <li>
+                        <strong>Generated answers are only as grounded as the retrieved context.</strong> If retrieval misses the relevant chunk, the AI Answer mode can only work with what it was given \u2014 it's instructed not to fall back on its own knowledge, but that instruction isn't a hard guarantee.
                     </li>
                 </ul>
             </section>
@@ -83,16 +87,25 @@ function UnderTheHood() {
                 <h2 className="tech-section-title">Planned for v2</h2>
                 <ul className="limitations-list">
                     <li>
-                        <strong>Cross-encoder reranking</strong> over the top-k candidates, to judge relevance directly instead of relying on embedding distance alone.
+                        <strong>User accounts</strong> \u2014 scope uploaded documents and search results per logged-in user, reusing the JWT auth pattern from an earlier project.
                     </li>
                     <li>
-                        <strong>Topic-aware chunking</strong> for structured documents, so distinct commands or sections land in separate chunks rather than being blended together.
+                        <strong>Cross-encoder reranking</strong> over the top-k candidates \u2014 deprioritized for now, since a second model adds real memory pressure on free-tier hosting; revisiting once memory headroom allows.
+                    </li>
+                    <li>
+                        <strong>Further chunking refinement</strong> for short, multi-topic reference documents, where several unrelated sections can still land in one chunk.
                     </li>
                 </ul>
             </section>
 
 
 
+            <a href="https://github.com/ZEUS1802/DocSearch"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="repo-link">
+                View the code on GitHub
+            </a>
         </div >
     );
 }
